@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload d'images</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Upload d'images par thème</h1>
+  <form id="uploadForm">
+    <input type="text" id="title" placeholder="Titre" required>
+    <input type="text" id="theme" placeholder="Thème" required>
+    <input type="file" id="image" accept="image/*" required>
+    <button type="submit">Uploader</button>
+  </form>
+  <div id="images"></div>
+  <script src="script.js"></script>
+</body>
+</html>
