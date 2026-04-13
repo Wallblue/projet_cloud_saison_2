@@ -1,5 +1,75 @@
 body { font-family: Arial, sans-serif; margin: 20px; }
 form { margin-bottom: 20px; }
 input, button { margin: 5px; padding: 10px; }
-#images { display: flex; flex-wrap: wrap; }
-#images div { margin: 10px; }
+
+#images {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.theme-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid #333;
+  padding: 10px 0;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.theme-toggle:hover {
+  opacity: 0.7;
+}
+
+.theme-toggle h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.arrow.rotated {
+  transform: rotate(-90deg);
+}
+
+.images-row {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  max-height: 300px;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.images-row.hidden {
+  display: none;
+}
+
+.images-row div {
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.images-row img {
+  max-height: 200px;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.images-row h3 {
+  margin: 10px 0 5px 0;
+  font-size: 14px;
+}
