@@ -1,16 +1,22 @@
-import sqlite3 from 'sqlite3';
+import { Pool } from 'pg';
+import dotenv from 'dotenv';
 
-const db = new sqlite3.Database('./images.db');
+dotenv.config();
 
-db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS images (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT NOT NULL,
-      theme TEXT NOT NULL,
-      filename TEXT NOT NULL
-    )
-  `);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL
 });
 
-export default db;
+pool.on('error', (err) => console.error('Erreur pool PostgreSQL:', err));
+
+pool.query(`
+  CREATE TABLE IF NOT EXISTS images (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    theme VARCHAR(255) NOT NULL,
+    filename VARCHAR(255) NOT NULL
+  )
+`).then(() => console.log('Table images créée ou existe déjà'))
+  .catch(err => console.error('Erreur création table:', err));
+
+export default pool;
