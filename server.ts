@@ -49,7 +49,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 
 app.get('/images', async (_req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM images');
+    const result = await pool.query('SELECT * FROM images WHERE validated = true');
     res.json(result.rows);
   } catch (err) {
     res.status(500).send('Erreur base de données');
