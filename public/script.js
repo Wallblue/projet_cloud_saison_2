@@ -37,7 +37,7 @@ async function loadImages() {
         ${grouped[theme].map(img => `
           <div>
             <h3>${img.title}</h3>
-            <img src="/uploads/${img.filename}" alt="${img.title}">
+            <img src="${img.filename}" alt="${img.title}">
           </div>
         `).join('')}
       </div>
