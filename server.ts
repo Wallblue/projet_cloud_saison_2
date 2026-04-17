@@ -47,6 +47,16 @@ app.post('/upload', upload.single('image'), async (req, res) => {
   }
 });
 
+app.get('/images/:id', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM images WHERE id = $1', [req.params.id]);
+    if (result.rows.length === 0) return res.status(404).send('Image non trouvée');
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).send('Erreur base de données');
+  }
+});
+
 app.get('/images', async (_req, res) => {
   try {
     const result = await pool.query('SELECT * FROM images WHERE validated = true');

@@ -6,12 +6,36 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
   formData.append('image', document.getElementById('image').files[0]);
 
   const response = await fetch('/upload', { method: 'POST', body: formData });
-  if (response.ok) {
-    alert('Image uploadée !');
+  if (!response.ok) {
+    alert('Erreur lors de l\'upload');
+    return;
+  }
+
+  const { id } = await response.json();
+
+  // Attendre que Lambda ait validé le fichier (max 10 secondes)
+  let validated = null;
+  for (let i = 0; i < 20; i++) {
+    await new Promise(r => setTimeout(r, 500));
+    const check = await fetch(`/images/${id}`);
+    const img = await check.json();
+    if (img.validated !== null) {
+      validated = img.validated;
+      break;
+    }
+  }
+
+  if (validated === true) {
+    alert('Image uploadée et validée avec succès !');
     document.getElementById('uploadForm').reset();
     loadImages();
+  } else if (validated === false) {
+    alert('Fichier rejeté : ce format n\'est pas accepté. Seuls .jpg, .jpeg, .png, .gif et .webp sont autorisés.');
+    document.getElementById('uploadForm').reset();
   } else {
-    alert('Erreur lors de l\'upload');
+    alert('Upload réussi mais la validation n\'a pas répondu à temps.');
+    document.getElementById('uploadForm').reset();
+    loadImages();
   }
 });
 
