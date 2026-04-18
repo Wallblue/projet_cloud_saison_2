@@ -15,7 +15,7 @@ pool.query(`
     title VARCHAR(255) NOT NULL,
     theme VARCHAR(255) NOT NULL,
     filename VARCHAR(255) NOT NULL,
-    validated BOOLEAN DEFAULT false
+    validated BOOLEAN DEFAULT NULL
   )
 `).then(() => console.log('Table images créée ou existe déjà'))
   .catch(err => console.error('Erreur création table:', err));
