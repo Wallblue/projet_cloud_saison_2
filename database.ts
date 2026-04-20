@@ -3,7 +3,10 @@ import configPromise from './config';
 
 async function createPool() {
   const config = await configPromise;
-  const pool = new Pool({ connectionString: config.DATABASE_URL });
+  const pool = new Pool({
+    connectionString: config.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+  });
 
   pool.on('error', (err) => console.error('Erreur pool PostgreSQL:', err));
 
