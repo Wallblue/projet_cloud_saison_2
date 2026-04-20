@@ -1,18 +1,12 @@
 import express from 'express';
 import multer from 'multer';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import pool from './database';
-
-dotenv.config();
+import configPromise from './config';
+import poolPromise from './database';
 
 const app = express();
 const port = 3000;
-
-const s3 = new S3Client({
-  region: process.env.AWS_REGION!,
-});
 
 app.use(cors());
 app.use(express.json());
@@ -24,17 +18,19 @@ app.post('/upload', upload.single('image'), async (req, res) => {
   const { title, theme } = req.body;
   if (!req.file) return res.status(400).send('Aucune image uploadée');
 
+  const [config, pool] = await Promise.all([configPromise, poolPromise]);
+  const s3 = new S3Client({ region: config.AWS_REGION });
   const key = `${Date.now()}-${req.file.originalname}`;
 
   try {
     await s3.send(new PutObjectCommand({
-      Bucket: process.env.S3_BUCKET_NAME!,
+      Bucket: config.S3_BUCKET_NAME,
       Key: key,
       Body: req.file.buffer,
       ContentType: req.file.mimetype,
     }));
 
-    const s3Url = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    const s3Url = `https://${config.S3_BUCKET_NAME}.s3.${config.AWS_REGION}.amazonaws.com/${key}`;
 
     const result = await pool.query(
       'INSERT INTO images (title, theme, filename) VALUES ($1, $2, $3) RETURNING id',
@@ -49,6 +45,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 
 app.get('/images/:id', async (req, res) => {
   try {
+    const pool = await poolPromise;
     const result = await pool.query('SELECT * FROM images WHERE id = $1', [req.params.id]);
     if (result.rows.length === 0) return res.status(404).send('Image non trouvée');
     res.json(result.rows[0]);
@@ -59,6 +56,7 @@ app.get('/images/:id', async (req, res) => {
 
 app.get('/images', async (_req, res) => {
   try {
+    const pool = await poolPromise;
     const result = await pool.query('SELECT * FROM images WHERE validated = true');
     res.json(result.rows);
   } catch (err) {

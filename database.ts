@@ -1,23 +1,23 @@
 import { Pool } from 'pg';
-import dotenv from 'dotenv';
+import configPromise from './config';
 
-dotenv.config();
+async function createPool() {
+  const config = await configPromise;
+  const pool = new Pool({ connectionString: config.DATABASE_URL });
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-});
+  pool.on('error', (err) => console.error('Erreur pool PostgreSQL:', err));
 
-pool.on('error', (err) => console.error('Erreur pool PostgreSQL:', err));
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS images (
+      id SERIAL PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      theme VARCHAR(255) NOT NULL,
+      filename VARCHAR(255) NOT NULL,
+      validated BOOLEAN DEFAULT NULL
+    )
+  `);
+  console.log('Table images créée ou existe déjà');
+  return pool;
+}
 
-pool.query(`
-  CREATE TABLE IF NOT EXISTS images (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    theme VARCHAR(255) NOT NULL,
-    filename VARCHAR(255) NOT NULL,
-    validated BOOLEAN DEFAULT NULL
-  )
-`).then(() => console.log('Table images créée ou existe déjà'))
-  .catch(err => console.error('Erreur création table:', err));
-
-export default pool;
+export default createPool();
